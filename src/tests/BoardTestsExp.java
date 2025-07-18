@@ -7,6 +7,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Set;
 
+/**
+ * Class: BoardTestsExp
+ * 
+ * Purpose:
+ * Unit tests for the TestBoard and TestBoardCell classes in the experiment package.
+ * Tests cover adjacency lists, target calculation with varying path lengths,
+ * cell occupancy, and special cases such as room cells that stop movement.
+ * 
+ * Author(s): Shaurya Saxena, Logan Matthews
+ * Date: July 18, 2025
+ * Collaborators: None
+ * Sources: None
+ */
+
 class BoardTestsExp {
 	private TestBoard board;
 	
@@ -147,6 +161,25 @@ class BoardTestsExp {
 		
 		// Should have more than 3 targets at 2 steps from startCell
 		assertTrue(targets.size() >= 4);
+	}
+	
+	@Test
+	public void testCalcTargetsWithTwoStepsAndOneRoom() {
+		TestBoardCell startCell = board.getCell(2, 2);
+		
+		board.getCell(2, 3).setRoom(true);
+		
+		board.calcTargets(startCell, 2);
+		Set<TestBoardCell> targets = board.getTargets();
+		
+		assertEquals(7, targets.size());
+		assertTrue(targets.contains(board.getCell(2, 3))); // room
+		assertTrue(targets.contains(board.getCell(0, 2)));
+		assertTrue(targets.contains(board.getCell(1,1)));
+		assertTrue(targets.contains(board.getCell(1,3)));
+		assertTrue(targets.contains(board.getCell(3,1)));
+		assertTrue(targets.contains(board.getCell(3,3)));
+		assertTrue(targets.contains(board.getCell(2,0)));
 	}
 	
 
