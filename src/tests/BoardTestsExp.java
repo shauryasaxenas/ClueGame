@@ -48,12 +48,106 @@ class BoardTestsExp {
 	
 	@Test
 	public void testAdjacencyLeftEdge() {
-		TestBoardCell cell = board.getCell(1, 0);
+		TestBoardCell cell1 = board.getCell(1, 0);
+		Set<TestBoardCell> list1 = cell1.getAdjList();
+		
+		assertEquals(3, list1.size());
+		assertTrue(list1.contains(board.getCell(0, 0)));
+		assertTrue(list1.contains(board.getCell(2, 0)));
+		assertTrue(list1.contains(board.getCell(1, 1)));
+		
+		TestBoardCell cell2 = board.getCell(3, 0);
+		Set<TestBoardCell> list2 = cell2.getAdjList();
+		
+		assertEquals(2, list2.size());
+		assertTrue(list2.contains(board.getCell(3, 1)));
+		assertTrue(list2.contains(board.getCell(2, 0)));
+	}
+	
+	@Test
+	public void testAdjacencyMiddle() {
+		TestBoardCell cell = board.getCell(2, 2);
 		Set<TestBoardCell> list = cell.getAdjList();
 		
-		assertEquals(3, list.size());
-		assertTrue(list.contains(board.getCell(0, 0)));
-		assertTrue(list.contains(board.getCell(2, 0)));
+		assertEquals(4, list.size());
+		assertTrue(list.contains(board.getCell(2, 1)));
+		assertTrue(list.contains(board.getCell(3, 2)));
+		assertTrue(list.contains(board.getCell(2, 3)));
+		assertTrue(list.contains(board.getCell(1, 2)));
 	}
+	
+	@Test
+	public void testEmptyBoard() {
+		TestBoardCell cell = board.getCell(1, 1);
+		board.calcTargets(cell, 1);
+		Set<TestBoardCell> targets = board.getTargets();
+		assertEquals(4, targets.size());
+		assertTrue(targets.contains(board.getCell(1, 0)));
+		assertTrue(targets.contains(board.getCell(2, 1)));
+		assertTrue(targets.contains(board.getCell(1, 2)));
+		assertTrue(targets.contains(board.getCell(0, 1)));
+	}
+	
+	@Test
+	public void testOneCellOccupied() {
+		TestBoardCell cell = board.getCell(1, 1);
+		board.getCell(1, 2).setOccupied(true);
+		board.calcTargets(cell, 1);
+		
+		Set<TestBoardCell> targets = board.getTargets();
+		assertEquals(3, targets.size());
+		assertTrue(targets.contains(board.getCell(1, 0)));
+		assertTrue(targets.contains(board.getCell(0, 1)));
+		assertTrue(targets.contains(board.getCell(2, 1)));
+		assertFalse(targets.contains(board.getCell(1, 2)));
+	}
+	
+	@Test
+	public void testOneCellRoom() {
+		TestBoardCell startCell = board.getCell(1, 1);
+		
+		board.getCell(2, 1).setRoom(true); // Position (2,1) is a room
+		
+		board.calcTargets(startCell, 2);
+		Set<TestBoardCell> targets = board.getTargets();
+		
+		/* 
+		Since (2,1) is a room, movement stops even if steps remain
+		This allows the valid targets to only be:  
+			(0,1) -> (0,0) , (0,2)
+			(1,0) -> (0,0) , (2,0) 
+			(1,2) -> (0,2) , (2,2)
+		*/
+		
+		assertTrue(targets.contains(board.getCell(2, 1)));
+		assertFalse(targets.contains(board.getCell(3, 1)));
+	}
+	
+	@Test
+	public void testCalcTargetsWith6Steps() {
+		TestBoardCell startCell = board.getCell(0, 0);
+		
+		board.calcTargets(startCell, 6);
+		Set<TestBoardCell> targets = board.getTargets();
+		
+		assertTrue(targets.size() > 5);
+	}
+	
+	@Test
+	public void testCalcTargetsWithTwoSteps() {
+		TestBoardCell startCell = board.getCell(2, 2);
+		
+		board.calcTargets(startCell, 2);
+		Set<TestBoardCell> targets = board.getTargets();
+		
+		assertTrue(targets.contains(board.getCell(0, 2)));
+		assertTrue(targets.contains(board.getCell(1, 1)));
+		assertTrue(targets.contains(board.getCell(2, 0)));
+		assertTrue(targets.contains(board.getCell(3, 1)));
+		
+		// Should have more than 3 targets at 2 steps from startCell
+		assertTrue(targets.size() >= 4);
+	}
+	
 
 }
