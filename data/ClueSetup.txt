@@ -1,0 +1,13 @@
+// Rooms and room cards
+Room, Death Star Control Room, D
+Room, Jedi Council Chamber, J
+Room, Mos Eisley Cantina, M
+Room, Sith Temple, S
+Room, Millennium Falcon Cockpit, F
+Room, Carbon Freezing Chamber, C
+Room, Trash Compactor, T
+Room, Imperial Hangar Bay, I
+Room, Dagobah Swamp Hut, H
+// other spaces on board
+Space, Unused, X
+Space, Walkway, W
