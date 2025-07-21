@@ -28,7 +28,7 @@ class BoardTestsExp {
 	public void setup() {
 		board = new TestBoard();
 	}
-	
+	// ----- Adjacency Tests -----
 	@Test
 	public void testAdjacencyTopLeft() {
 		TestBoardCell cell = board.getCell(0, 0);
@@ -90,6 +90,7 @@ class BoardTestsExp {
 		assertTrue(list.contains(board.getCell(1, 2)));
 	}
 	
+	// ----- Target Calculation Tests -----
 	@Test
 	public void testEmptyBoard() {
 		TestBoardCell cell = board.getCell(1, 1);

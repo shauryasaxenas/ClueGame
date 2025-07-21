@@ -28,6 +28,7 @@ public class TestBoard {
 		super();
 		grid = new TestBoardCell[ROWS][COLS];
 		
+		// Initializes each cell in the grid as a TestBoardCell object
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				grid[row][col] = new TestBoardCell(row, col);
@@ -37,19 +38,19 @@ public class TestBoard {
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				if (row > 0) {
-					grid[row][col].addAdjacency(grid[row - 1][col]);
+					grid[row][col].addAdjacency(grid[row - 1][col]); // Checks the row above
 				}
 				
 				if (row < ROWS - 1) {
-					grid[row][col].addAdjacency(grid[row + 1][col]);
+					grid[row][col].addAdjacency(grid[row + 1][col]); // Checks the row below
 				}
 				
 				if (col > 0) {
-					grid[row][col].addAdjacency(grid[row][col - 1]);
+					grid[row][col].addAdjacency(grid[row][col - 1]); // Checks the column to the left
 				}
 				
 				if (col < COLS - 1) {
-					grid[row][col].addAdjacency(grid[row][col + 1]);
+					grid[row][col].addAdjacency(grid[row][col + 1]); // Checks the column to the right
 				}
 			}
 		}
@@ -59,10 +60,13 @@ public class TestBoard {
 	public void findAllTargets(TestBoardCell cell, int stepsRemaining) {
 		for (TestBoardCell adjCell : cell.getAdjList()) {
 			if (!visited.contains(adjCell) && !adjCell.getOccupied()) {
-				visited.add(adjCell);
+				visited.add(adjCell); // Add adjacent cell to visited if not in visited and the cell isn't occupied
+				
+				// If adjacent cell is a room or only 1 step remaining
 				if (adjCell.isRoom() || stepsRemaining == 1) {
 					targets.add(adjCell);
-				} else {
+				} else { 
+					// Otherwise remove one step recursively
 					findAllTargets(adjCell, stepsRemaining - 1);
 				}
 				visited.remove(adjCell);
