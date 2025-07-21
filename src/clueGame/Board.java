@@ -1,66 +1,32 @@
 package clueGame;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
+import java.io.*;
 
 public class Board {
 	private BoardCell[][] grid;
-	private int numRows, numColumns;
-	private String layoutConfigFile, setupConfigFile;
+	private int numRows;
+	private int numColumns;
+	private String layoutConfigFile;
+	private String setupConfigFile;
 	private Map<Character, Room> roomMap = new HashMap<>();
 	
-	private static Board theInstance = new Board();
-	
-	public static Board getInstance() {
-		return theInstance;
-	}
-	
-	private Board() {}
-
-	public void setConfigFiles(String layoutConfigFile, String setupConfigFile) {
-		this.layoutConfigFile = layoutConfigFile;
-		this.setupConfigFile = setupConfigFile;
-	}
-	
-	public void initialize() {
-		loadSetupConfig();
-		loadLayoutConfig();
-	}
-	
-	public void loadSetupConfig() {
-		try {
-			File file = new File(setupConfigFile);
-			Scanner scanner = new Scanner(file);
-		} catch (FileNotFoundException e) {
-			System.out.println("Setup file not found: " + setupConfigFile);
-			e.printStackTrace();
-		}
-	}
-	
-	public void loadLayoutConfig() {
-		
-	}
-	
-	public Room getRoom(char initial) {
-		return roomMap.get(initial);
-	}
-	
-	public Room getRoom(BoardCell cell) {
-		return roomMap.get(cell.getInitial());
-	}
-	
-	public BoardCell getCell(int row, int col) {
-		return grid[row][col];
-	}
-	
-	public int getNumRows() {
-		return numRows;
-	}
-	
-	public int getNumColumns() {
-		return numColumns;
-	}
+	/*
+     * variable and methods used for singleton pattern
+     */
+     private static Board theInstance = new Board();
+     // constructor is private to ensure only one can be created
+     private Board() {
+            super();
+     }
+     // this method returns the only Board
+     public static Board getInstance() {
+            return theInstance;
+     }
+     /*
+      * initialize the board (since we are using singleton pattern)
+      */
+     public void initialize()
+     {
+     }
 }
