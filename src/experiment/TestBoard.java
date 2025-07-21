@@ -18,20 +18,71 @@ import java.util.Set;
  */
 
 public class TestBoard {
+	private TestBoardCell[][] grid;
+	private Set<TestBoardCell> targets;
+	private Set<TestBoardCell> visited;
+	public final static int COLS = 4;
+	public final static int ROWS = 4;
 
 	public TestBoard() {
 		super();
+		grid = new TestBoardCell[ROWS][COLS];
+		
+		for (int row = 0; row < ROWS; row++) {
+			for (int col = 0; col < COLS; col++) {
+				grid[row][col] = new TestBoardCell(row, col);
+			}
+		}
+		
+		for (int row = 0; row < ROWS; row++) {
+			for (int col = 0; col < COLS; col++) {
+				if (row > 0) {
+					grid[row][col].addAdjacency(grid[row - 1][col]);
+				}
+				
+				if (row < ROWS - 1) {
+					grid[row][col].addAdjacency(grid[row + 1][col]);
+				}
+				
+				if (col > 0) {
+					grid[row][col].addAdjacency(grid[row][col - 1]);
+				}
+				
+				if (col < COLS - 1) {
+					grid[row][col].addAdjacency(grid[row][col + 1]);
+				}
+			}
+		}
+		
 	}
 	
+	public void findAllTargets(TestBoardCell cell, int stepsRemaining) {
+		for (TestBoardCell adjCell : cell.getAdjList()) {
+			if (!visited.contains(adjCell) && !adjCell.getOccupied()) {
+				visited.add(adjCell);
+				if (adjCell.isRoom() || stepsRemaining == 1) {
+					targets.add(adjCell);
+				} else {
+					findAllTargets(adjCell, stepsRemaining - 1);
+				}
+				visited.remove(adjCell);
+			}
+			
+		}
+	}
+
 	public void calcTargets(TestBoardCell startCell, int pathlength) {
-		return;
+		targets = new HashSet<>();
+		visited = new HashSet<>();
+		visited.add(startCell);
+		findAllTargets(startCell, pathlength);
 	}
 	
 	public TestBoardCell getCell(int row, int col) {
-		return new TestBoardCell(row, col);
+		return grid[row][col];
 	}
 	
 	public Set<TestBoardCell> getTargets() {
-		return new HashSet<>();
+		return targets;
 	}
 }
