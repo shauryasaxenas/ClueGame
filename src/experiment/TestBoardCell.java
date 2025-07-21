@@ -18,37 +18,42 @@ import java.util.Set;
  */
 
 public class TestBoardCell {
-	private int row; 
-	private int column;
+	private int row, column;
+	private Boolean isRoom, isOccupied;
+	private Set<TestBoardCell> adjList;
 	
-	public TestBoardCell(int row, int column) {
+	
+	public TestBoardCell(int row, int col) {
 		super();
 		this.row = row;
-		this.column = column;
+		this.column = col;
+		this.adjList = new HashSet<>();
+		this.isRoom = false;
+		this.isOccupied = false;
 	}
 	
 	public void addAdjacency(TestBoardCell cell) {
-		return;
+		adjList.add(cell);
 	}
 	
 	public Set<TestBoardCell> getAdjList() {
-		return new HashSet<>();
+		return adjList;
 	}
 	
 	public void setRoom(boolean isRoom) {
-		return;
+		this.isRoom = isRoom;
 	}
 	
 	public boolean isRoom() {
-		return false;
+		return isRoom;
 	}
 	
-	public void setOccupied(boolean occupied) {
-		return;
+	public void setOccupied(boolean isOccupied) {
+		this.isOccupied = isOccupied;
 	}
 	
 	public boolean getOccupied() {
-		return false;
+		return isOccupied;
 	}
 	
 }
