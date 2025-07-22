@@ -3,6 +3,14 @@ package clueGame;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a single cell on the game board.
+ * Stores information such as location, room initial, door direction, and adjacency.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: July 21, 2025
+ */
+
 public class BoardCell {
 	private int row;
 	private int col;
@@ -23,7 +31,7 @@ public class BoardCell {
 	}
 	
 	public char getInitial() {
-		return initial;
+		return ' ';
 	}
 	
 	public boolean isDoorway() {

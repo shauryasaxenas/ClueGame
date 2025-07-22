@@ -1,14 +1,22 @@
 package tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import clueGame.BadConfigFormatException;
-import clueGame.Board;
-import clueGame.BoardCell;
-import clueGame.DoorDirection;
+import clueGame.*;
+
+/**
+ * Class: FileInitTests
+ * Unit tests for the Board initialization and configuration file loading.
+ * Tests room labels, board dimensions, cell initials, door directions,
+ * singleton behavior, and handling of bad configuration files.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: July 21, 2025
+ */
 
 class FileInitTests {
 	// Constants that I will use to test whether the file was loaded correctly
@@ -46,6 +54,12 @@ class FileInitTests {
 		}
 		
 		@Test
+		public void testBoardHasPositiveDimenstions() {
+			assertTrue(board.getNumColumns() > 0);
+			assertTrue(board.getNumRows() > 0);
+		}
+		
+		@Test
 		public void testCellInitials() {
 			BoardCell cell1 = board.getCell(0, 0);
 			assertEquals('D', cell1.getInitial());
@@ -57,6 +71,12 @@ class FileInitTests {
 		@Test
 		public void testRoomMapSize() {
 			assertEquals(LEGEND_SIZE, board.getRoomMap().size());
+		}
+		
+		@Test
+		public void testCellInitialMatches() {
+		    BoardCell cell = board.getCell(0, 0);
+		    assertEquals('D', cell.getInitial());
 		}
 		
 		@Test
@@ -92,4 +112,5 @@ class FileInitTests {
 			Board board2 = Board.getInstance();
 			assertSame(board, board2);
 		}
+		
 	}

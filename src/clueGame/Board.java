@@ -3,6 +3,16 @@ package clueGame;
 import java.util.*;
 import java.io.*;
 
+/**
+ * Board represents the game board in the Clue game.
+ * It is implemented as a singleton to ensure only one board exists.
+ * 
+ * This class supports initialization, lookup, and basic board info queries.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: July 21, 2025
+ */
+
 public class Board {
 	private BoardCell[][] grid;
 	private int numRows;
@@ -40,7 +50,7 @@ public class Board {
     	        while ((line = reader.readLine()) != null) {
     	            line = line.trim();
     	            if (line.startsWith("//") || line.isEmpty()) continue;
-    	            String[] cells = line.split("\t"); // or "," if your file is comma-separated
+    	            String[] cells = line.split("\t"); 
     	            lines.add(cells);
     	        }
     	    } catch (IOException e) {
@@ -111,7 +121,7 @@ public class Board {
      }
      
      public Room getRoom(BoardCell cell) {
-    	 return new Room("Fake");
+    	 return null;
      }
 
 	 public Map<Character, Room> getRoomMap() {

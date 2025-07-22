@@ -1,5 +1,13 @@
 package clueGame;
 
+/**
+ * Class: Room
+ * Represents a room in the game with a name, and references to its center and label cells.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: July 21, 2025
+ */
+
 public class Room {
 	private String name;
 	private BoardCell centerCell;
