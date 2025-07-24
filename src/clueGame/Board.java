@@ -14,6 +14,13 @@ import java.io.*;
  */
 
 public class Board {
+	private static final char CENTER_MARKER = '*';
+	private static final char DOOR_RIGHT = '>';
+	private static final char DOOR_LEFT = '<';
+	private static final char DOOR_DOWN = 'v';
+	private static final char DOOR_UP = '^';
+	private static final String CSV_DELIMITER = ",";
+	private static final String COMMENT_PREFIX = "//";
 	private BoardCell[][] grid;
 	private int numRows;
 	private int numColumns;
@@ -54,146 +61,161 @@ public class Board {
     	    
     	    List<String[]> lines = new ArrayList<>();
 
-    	    try (BufferedReader reader = new BufferedReader(new FileReader(layoutConfigFile))) {
-    	        String line;
-    	        while ((line = reader.readLine()) != null) {
-    	            line = line.trim();
-    	            if (line.startsWith("//") || line.isEmpty()) continue;
-    	            
-    	            String[] cells = line.split(",");
-    	            
-    	            // Trim each cell to remove extra whitespace
-    	            for (int i = 0; i < cells.length; i++) {
-    	                cells[i] = cells[i].trim();
-    	            }
-    	            
-    	            lines.add(cells);
-    	        }
-    	    } catch (IOException e) {
-    	        throw new BadConfigFormatException("Error reading layout file: " + e.getMessage());
-    	    }
+    	    readLayoutFile(lines);
 
-    	    if (lines.isEmpty()) {
-    	        throw new BadConfigFormatException("Layout file is empty!");
-    	    }
-
-    	    numRows = lines.size();
-    	    numColumns = lines.get(0).length;
-    	    
-    	    // Check for consistent column count
-    	    for (int i = 0; i < lines.size(); i++) {
-    	        if (lines.get(i).length != numColumns) {
-    	            throw new BadConfigFormatException("Row " + i + " has " + lines.get(i).length + 
-    	                " columns, expected " + numColumns);
-    	        }
-    	    }
+    	    validateAndSetGridDimensions(lines);
 
     	    grid = new BoardCell[numRows][numColumns];
 
     	    for (int row = 0; row < numRows; row++) {
     	        String[] rowCells = lines.get(row);
     	        for (int col = 0; col < numColumns; col++) {
-    	            String cellData = rowCells[col];
-    	            if (cellData.isEmpty()) {
-    	                throw new BadConfigFormatException("Empty cell data at row " + row + ", col " + col);
-    	            }
-    	            
-    	            char initial;
-    	            DoorDirection doorDir = DoorDirection.NONE;
-    	            boolean isCenter = false;
-    	            boolean isLabel = false;
-    	            char secretPassage = ' ';
-    	            
-    	            // Check if first character is a direction indicator
-    	            if (cellData.length() > 1) {
-    	                char firstChar = cellData.charAt(0);
-    	                switch (firstChar) {
-    	                    case '^':
-    	                        doorDir = DoorDirection.UP;
-    	                        initial = cellData.charAt(1);
-    	                        break;
-    	                    case 'v':
-    	                        doorDir = DoorDirection.DOWN;
-    	                        initial = cellData.charAt(1);
-    	                        break;
-    	                    case '<':
-    	                        doorDir = DoorDirection.LEFT;
-    	                        initial = cellData.charAt(1);
-    	                        break;
-    	                    case '>':
-    	                        doorDir = DoorDirection.RIGHT;
-    	                        initial = cellData.charAt(1);
-    	                        break;
-    	                    default:
-    	                        // First character is the room initial
-    	                        initial = firstChar;
-    	                        char secondChar = cellData.charAt(1);
-    	                        switch (secondChar) {
-    	                            case '^':
-    	                                doorDir = DoorDirection.UP;
-    	                                break;
-    	                            case 'v':
-    	                                doorDir = DoorDirection.DOWN;
-    	                                break;
-    	                            case '<':
-    	                                doorDir = DoorDirection.LEFT;
-    	                                break;
-    	                            case '>':
-    	                                doorDir = DoorDirection.RIGHT;
-    	                                break;
-    	                            case '*':
-    	                                isCenter = true;
-    	                                break;
-    	                            case '#':
-    	                                isLabel = true;
-    	                                break;
-    	                            default:
-    	                                // Could be a secret passage (uppercase letter)
-    	                                if (Character.isLetter(secondChar) && Character.isUpperCase(secondChar)) {
-    	                                    secretPassage = secondChar;
-    	                                }
-    	                                break;
-    	                        }
-    	                        break;
-    	                }
-    	            } else {
-    	                // Single character - just the room initial
-    	                initial = cellData.charAt(0);
-    	            }
-    	            
-    	            // Check if room exists in setup
-    	            if (!roomMap.containsKey(initial)) {
-    	                throw new BadConfigFormatException("Room '" + initial + "' not found in setup file at row " + row + ", col " + col);
-    	            }
-    	            
-    	            BoardCell cell = new BoardCell(row, col);
-    	            cell.setInitial(initial);
-    	            cell.setDoorDirection(doorDir);
-    	            cell.setRoomCenter(isCenter);
-    	            cell.setLabel(isLabel);
-    	            if (secretPassage != ' ') {
-    	                cell.setSecretPassage(secretPassage);
-    	            }
-    	            
-    	            grid[row][col] = cell;
+    	            parseCellData(row, rowCells, col);
     	        }
     	    }
     	    
-    	    for (int row = 0; row < numRows; row++) {
-    	        for (int col = 0; col < numColumns; col++) {
-    	            BoardCell cell = grid[row][col];
-    	            Room room = roomMap.get(cell.getInitial());
-    	            
-    	            if (cell.isLabel()) {
-    	                room.setLabelCell(cell);
-    	            }
-    	            
-    	            if (cell.isRoomCenter()) {
-    	                room.setCenterCell(cell);
-    	            }
-    	        }
-    	    }
+    	    linkCellsToRooms();
     	}
+     
+	 private void linkCellsToRooms() {
+		for (int row = 0; row < numRows; row++) {
+		    for (int col = 0; col < numColumns; col++) {
+		        BoardCell cell = grid[row][col];
+		        Room room = roomMap.get(cell.getInitial());
+		        
+		        if (cell.isLabel()) {
+		            room.setLabelCell(cell);
+		        }
+		       
+		        if (cell.isRoomCenter()) {
+		            room.setCenterCell(cell);
+		        }
+		    }
+		}
+	 }
+	 private void validateAndSetGridDimensions(List<String[]> lines) throws BadConfigFormatException {
+		numRows = lines.size();
+		numColumns = lines.get(0).length;
+		
+		// Check for consistent column count
+		for (int i = 0; i < lines.size(); i++) {
+		    if (lines.get(i).length != numColumns) {
+		        throw new BadConfigFormatException("Row " + i + " has " + lines.get(i).length + 
+		            " columns, expected " + numColumns);
+		    }
+		}
+	 }
+     
+	 private void readLayoutFile(List<String[]> lines) throws BadConfigFormatException {
+		try (BufferedReader reader = new BufferedReader(new FileReader(layoutConfigFile))) {
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		        line = line.trim();
+		        if (line.startsWith(COMMENT_PREFIX) || line.isEmpty()) continue;
+		        
+		        String[] cells = line.split(CSV_DELIMITER);
+		        
+		        // Trim each cell to remove extra whitespace
+		        for (int i = 0; i < cells.length; i++) {
+		            cells[i] = cells[i].trim();
+		        }
+		        
+		        lines.add(cells);
+		    }
+		} catch (IOException e) {
+		    throw new BadConfigFormatException("Error reading layout file: " + e.getMessage());
+		}
+
+		if (lines.isEmpty()) {
+		    throw new BadConfigFormatException("Layout file is empty!");
+		}
+	 }
+     
+	 private void parseCellData(int row, String[] rowCells, int col) throws BadConfigFormatException {
+		String cellData = rowCells[col];
+		if (cellData.isEmpty()) {
+		    throw new BadConfigFormatException("Empty cell data at row " + row + ", col " + col);
+		}
+		
+		char initial;
+		DoorDirection doorDir = DoorDirection.NONE;
+		boolean isCenter = false;
+		boolean isLabel = false;
+		char secretPassage = ' ';
+		
+		// Check if first character is a direction indicator
+		if (cellData.length() > 1) {
+		    char firstChar = cellData.charAt(0);
+		    switch (firstChar) {
+		        case DOOR_UP:
+		            doorDir = DoorDirection.UP;
+		            initial = cellData.charAt(1);
+		            break;
+		        case DOOR_DOWN:
+		            doorDir = DoorDirection.DOWN;
+		            initial = cellData.charAt(1);
+		            break;
+		        case DOOR_LEFT:
+		            doorDir = DoorDirection.LEFT;
+		            initial = cellData.charAt(1);
+		            break;
+		        case DOOR_RIGHT:
+		            doorDir = DoorDirection.RIGHT;
+		            initial = cellData.charAt(1);
+		            break;
+		        default:
+		            // First character is the room initial
+		            initial = firstChar;
+		            char secondChar = cellData.charAt(1);
+		            switch (secondChar) {
+		                case DOOR_UP:
+		                    doorDir = DoorDirection.UP;
+		                    break;
+		                case DOOR_DOWN:
+		                    doorDir = DoorDirection.DOWN;
+		                    break;
+		                case DOOR_LEFT:
+		                    doorDir = DoorDirection.LEFT;
+		                    break;
+		                case DOOR_RIGHT:
+		                    doorDir = DoorDirection.RIGHT;
+		                    break;
+		                case CENTER_MARKER:
+		                    isCenter = true;
+		                    break;
+		                case '#':
+		                    isLabel = true;
+		                    break;
+		                default:
+		                    // Could be a secret passage (uppercase letter)
+		                    if (Character.isLetter(secondChar) && Character.isUpperCase(secondChar)) {
+		                        secretPassage = secondChar;
+		                    }
+		                    break;
+		            }
+		            break;
+		    }
+		} else {
+		    // Single character - just the room initial
+		    initial = cellData.charAt(0);
+		}
+		
+		// Check if room exists in setup
+		if (!roomMap.containsKey(initial)) {
+		    throw new BadConfigFormatException("Room '" + initial + "' not found in setup file at row " + row + ", col " + col);
+		}
+		
+		BoardCell cell = new BoardCell(row, col);
+		cell.setInitial(initial);
+		cell.setDoorDirection(doorDir);
+		cell.setRoomCenter(isCenter);
+		cell.setLabel(isLabel);
+		if (secretPassage != ' ') {
+		    cell.setSecretPassage(secretPassage);
+		}
+		
+		grid[row][col] = cell;
+	 }
 
 
      
@@ -205,34 +227,37 @@ public class Board {
     	        String line;
     	        while ((line = reader.readLine()) != null) {
     	            line = line.trim();
-    	            if (line.startsWith("//") || line.isEmpty()) continue;
+    	            if (line.startsWith(COMMENT_PREFIX) || line.isEmpty()) continue;
     	            
-    	            String[] parts = line.split(",");
-    	            if (parts.length < 3) {
-    	                throw new BadConfigFormatException("Invalid setup file format: " + line);
-    	            }
-    	            
-    	            String type = parts[0].trim();
-    	            String name = parts[1].trim();
-    	            String initialStr = parts[2].trim();
-    	            
-    	            if (initialStr.length() != 1) {
-    	                throw new BadConfigFormatException ("Room initial must be single character: " + initialStr);
-    	            }
-    	            
-    	            char initial = initialStr.charAt(0);
-    	            
-    	            if (type.equals("Room") || type.equals("Space")) {
-    	                Room room = new Room(name);
-    	                roomMap.put(initial, room);
-    	            } else {
-    	                throw new BadConfigFormatException("Unknown type in setup file: " + type);
-    	            }
+    	            parseSetupLine(line);
     	        }
     	    } catch (IOException e) {
     	        throw new BadConfigFormatException("Error reading setup file: " + e.getMessage());
     	    }
     	}
+	 private void parseSetupLine(String line) throws BadConfigFormatException {
+		String[] parts = line.split(CSV_DELIMITER);
+		if (parts.length < 3) {
+		    throw new BadConfigFormatException("Invalid setup file format: " + line);
+		}
+		
+		String type = parts[0].trim();
+		String name = parts[1].trim();
+		String initialStr = parts[2].trim();
+		
+		if (initialStr.length() != 1) {
+		    throw new BadConfigFormatException ("Room initial must be single character: " + initialStr);
+		}
+		
+		char initial = initialStr.charAt(0);
+		
+		if (type.equals("Room") || type.equals("Space")) {
+		    Room room = new Room(name);
+		    roomMap.put(initial, room);
+		} else {
+		    throw new BadConfigFormatException("Unknown type in setup file: " + type);
+		}
+	 }
 
      
      public void setConfigFiles(String layoutConfigFile, String setupConfigFile) {
