@@ -88,6 +88,7 @@ public class BoardAdjTargetTest {
         for (BoardCell adjCell2 : adj2) {
             assertFalse(adjCell2.isRoomCenter()); // not entering room
         }
+        assertEquals(1, adj1.size());
     }
 
     // Doorway Cell: (3,5), (4,9)
@@ -163,6 +164,7 @@ public class BoardAdjTargetTest {
 
         // Occupied cell (4,8) should NOT be in the target list
         assertFalse(targets1.contains(board.getCell(4, 8)));
+        assertTrue(targets1.contains(board.getCell(4, 8)));
 
         // Reset occupation
         board.getCell(4, 8).setOccupied(false);
