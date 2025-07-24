@@ -90,4 +90,9 @@ public class BoardCell {
 		return col;
 	}
 
+	public void setOccupied(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
