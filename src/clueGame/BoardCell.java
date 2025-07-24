@@ -20,6 +20,7 @@ public class BoardCell {
 	private boolean roomCenter = false;
 	private char secretPassage = ' ';
 	private Set<BoardCell> adjList = new HashSet<>();
+	private boolean isOccupied = false;
 	
 	public BoardCell() {
 		
@@ -90,9 +91,12 @@ public class BoardCell {
 		return col;
 	}
 
-	public void setOccupied(boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
+	 public void setOccupied(boolean isOccupied) {
+	        this.isOccupied = isOccupied;
+	    }
+
+	    public boolean isOccupied() {
+	        return isOccupied;
+	    }
 
 }
