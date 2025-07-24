@@ -92,12 +92,14 @@ class FileInitTests {
 		}
 		
 		@Test
-		public void testBadLayoutFile() {
-			board.setConfigFiles("badLayout.csv","data/ClueSetup.txt");
-			assertThrows(BadConfigFormatException.class, () -> {
-				board.initialize();
-			});
-		}
+	    public void testBadLayoutFile() {
+	        Board testBoard = Board.getInstance();
+	        testBoard.setConfigFiles("badLayout.csv", "data/ClueSetup.txt");
+	        assertThrows(BadConfigFormatException.class, () -> {
+	            testBoard.loadSetupConfig(); // Load setup first
+	            testBoard.loadLayoutConfig(); // Then test the bad layout file
+	        });
+	    }
 		
 		@Test
 		public void testGetCell() {

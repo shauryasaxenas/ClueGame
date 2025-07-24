@@ -30,8 +30,12 @@ public class BoardCell {
 		this.col = col;
 	}
 	
+	public void setInitial(char initial) {
+		this.initial = initial;
+	}
+	
 	public char getInitial() {
-		return ' ';
+		return initial;
 	}
 	
 	public boolean isDoorway() {
@@ -79,11 +83,11 @@ public class BoardCell {
 	}
 
 	public int getRow() {
-		return 0;
+		return row;
 	}
 	
 	public int getColumn() {
-		return 0;
+		return col;
 	}
 
 }
