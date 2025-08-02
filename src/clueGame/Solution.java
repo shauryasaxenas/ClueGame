@@ -1,26 +1,22 @@
+/**
+ * Class: Solution
+ * Encapsulates the correct answer to the Clue game: one person, one weapon, and one room.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: August 1, 2025
+ */
+
+
 package clueGame;
 
 public class Solution {
-	private Card room;
-	private Card person;
-	private Card weapon;
-	
-	public Solution(Card room, Card person, Card weapon) {
-		super();
-		this.room = room;
-		this.person = person;
-		this.weapon = weapon;
-	}
+	public Card person;
+    public Card weapon;
+    public Card room;
 
-	public Card getRoom() {
-		return room;
-	}
-
-	public Card getPerson() {
-		return person;
-	}
-
-	public Card getWeapon() {
-		return weapon;
-	}
+    public Solution(Card person, Card weapon, Card room) {
+        this.person = person;
+        this.weapon = weapon;
+        this.room = room;
+    }
 }

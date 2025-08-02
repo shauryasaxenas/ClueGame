@@ -91,12 +91,12 @@ public class BoardCell {
 		return col;
 	}
 
-	 public void setOccupied(boolean isOccupied) {
-	        this.isOccupied = isOccupied;
-	    }
+	public void setOccupied(boolean isOccupied) {
+		this.isOccupied = isOccupied;
+	}
 
-	    public boolean isOccupied() {
-	        return isOccupied;
-	    }
+	public boolean isOccupied() {
+		return isOccupied;
+	}
 
 }
