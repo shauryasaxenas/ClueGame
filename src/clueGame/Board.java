@@ -563,5 +563,26 @@ public class Board {
 		            throw new BadConfigFormatException("Unknown color: " + colorName);
 		    }
 	 }
+	 
+	 public boolean checkAccusation (Solution accusation) {
+		 return theAnswer.person.equals(accusation.person) 
+				 && theAnswer.person.equals(accusation.weapon)
+				 && theAnswer.person.equals(accusation.room);
+	 }
+	 
+	 public Card handleSuggestion(Solution suggestion, Player accuser) {
+		 int index = players.indexOf(accuser);
+		 for (int i = 1; i < players.size(); i++) {
+			 Player player = players.get((index + i) % players.size());
+			 Card result = player.disproveSuggestion(suggestion);
+			 
+			 if (result != null) {
+				 return result;
+			 }
+		 }
+		 return null;
+	 }
+	 
+	 
 
 }

@@ -11,7 +11,10 @@ package clueGame;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public abstract class Player {
     private String name;
@@ -19,6 +22,7 @@ public abstract class Player {
     private int row;
     private int column;
     private List<Card> hand;
+    private Set<Card> seenCards = new HashSet<>();
 
     public Player(String name, Color color, int row, int column) {
         this.name = name;
@@ -60,5 +64,23 @@ public abstract class Player {
     @Override
     public String toString() {
         return name + " @ (" + row + ", " + column + ")";
+    }
+    
+    public Card disproveSuggestion(Solution suggestion) {
+    	List<Card> matches = new ArrayList<>();
+    	for (Card card : hand) {
+    		if (card.equals(suggestion.person) || card.equals(suggestion.weapon)) {
+    			matches.add(card);
+    		}
+    	}
+    	if (matches.isEmpty()) {
+    		return null;
+    	} else {
+    		return matches.get(new Random().nextInt(matches.size()));
+    	}
+    }
+    
+    public void addSeen(Card card) {
+    	seenCards.add(card);
     }
 }
