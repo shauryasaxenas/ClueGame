@@ -1,3 +1,7 @@
+package clueGame;
+
+import java.util.Objects;
+
 /**
  * Class: Card
  * Represents a Clue game card, which can be a person, room, or weapon.
@@ -5,13 +9,6 @@
  * Authors: Shaurya Saxena, Logan Matthews
  * Date: August 1, 2025
  */
-
-
-
-package clueGame;
-
-import java.util.Objects;
-
 public class Card {
 	
 	
@@ -33,16 +30,24 @@ public class Card {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Card card = (Card) obj;
-        return name.equals(card.name) && type == card.type;
+        if (this == obj) {
+        	return true;
+        }
+        
+        if (obj == null || getClass() != obj.getClass()) {
+        	return false;
+        }
+        
+        Card other = (Card) obj;
+        return name.equals(other.name) && type == other.type;
     }
 
+    // GeeksForGeeks
     @Override
     public int hashCode() {
         return Objects.hash(name, type);
     }
+
 
     @Override
     public String toString() {

@@ -88,6 +88,14 @@ public class GameSetupTests {
         cards.add(solution.person);
         cards.add(solution.weapon);
         cards.add(solution.room);
+        
+        for (Card card : board.getDeck()) {
+        	System.out.println(card);
+        }
+        
+        for (Player p : board.getPlayers()) {
+        	System.out.println(p.getName() + " (" + p.getColor() + ")");
+        }
 
         assertTrue(cards.contains(new Card("Lightsaber", CardType.WEAPON)));
         assertTrue(cards.contains(new Card("Princess Leia", CardType.PERSON)));
