@@ -11,20 +11,21 @@ package clueGame;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import clueGame.*;
+
 public abstract class Player {
     private String name;
-    private Color color;
+    private String color;
     private int row;
     private int column;
     private List<Card> hand;
-    private Set<Card> seenCards = new HashSet<>();
+    private static final Random rand = new Random();
 
-    public Player(String name, Color color, int row, int column) {
+    public Player(String name, String color, int row, int column) {
         this.name = name;
         this.color = color;
         this.row = row;
@@ -32,8 +33,11 @@ public abstract class Player {
         this.hand = new ArrayList<>();
     }
 
-    public void addCard(Card card) {
-        hand.add(card);
+    public void addCard(Card c) {
+        if (c != null) {
+            hand.add(c);
+        } else {
+        }
     }
 
     public List<Card> getHand() {
@@ -44,7 +48,7 @@ public abstract class Player {
         return name;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
@@ -67,20 +71,48 @@ public abstract class Player {
     }
     
     public Card disproveSuggestion(Solution suggestion) {
-    	List<Card> matches = new ArrayList<>();
-    	for (Card card : hand) {
-    		if (card.equals(suggestion.person) || card.equals(suggestion.weapon)) {
-    			matches.add(card);
-    		}
-    	}
-    	if (matches.isEmpty()) {
-    		return null;
-    	} else {
-    		return matches.get(new Random().nextInt(matches.size()));
-    	}
+        List<Card> matchingCards = new ArrayList<>();
+
+        for (Card card : hand) {
+            if (card.equals(suggestion.getPerson()) ||
+                card.equals(suggestion.getWeapon()) ||
+                card.equals(suggestion.getRoom())) {
+                matchingCards.add(card);
+            }
+        }
+
+        if (matchingCards.isEmpty()) {
+            return null;
+        } else {
+            Random rand = new Random();
+            return matchingCards.get(rand.nextInt(matchingCards.size()));
+        }
     }
-    
-    public void addSeen(Card card) {
-    	seenCards.add(card);
-    }
+
+	public BoardCell selectTarget(Set<BoardCell> targets) {
+		return null;
+	}
+	
+	public Color getColorObject() {
+	    switch (color.toLowerCase()) {
+	        case "red": return Color.RED;
+	        case "blue": return Color.BLUE;
+	        case "green": return Color.GREEN;
+	        case "yellow": return Color.YELLOW;
+	        case "black": return Color.BLACK;
+	        case "white": return Color.WHITE;
+	        case "orange": return Color.ORANGE;
+	        case "pink": return Color.PINK;
+	        case "gray": return Color.GRAY;
+	        default: throw new IllegalArgumentException("Unknown color: " + color);
+	    }
+	}
+
+	
+	
+
+
+
+
+
 }

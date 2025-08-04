@@ -298,25 +298,26 @@ public class Board {
     	        case "Player": {
     	            if (parts.length < 5) throw new BadConfigFormatException("Invalid player line: " + line);
     	            String name = parts[1].trim();
-    	            Color color = parseColor(parts[2].trim());
+    	            String color = parts[2].trim();  // ✅ use String
     	            int row = Integer.parseInt(parts[3].trim());
     	            int col = Integer.parseInt(parts[4].trim());
-    	            Player player = new HumanPlayer(name, color, row, col);
+    	            Player player = new HumanPlayer(name, color, row, col);  // ✅ use String
     	            players.add(player);
 
-    	            deck.add(new Card(name, CardType.PERSON)); // Add PERSON card
+    	            deck.add(new Card(name, CardType.PERSON));
     	            break;
     	        }
+
     	        case "Computer": {
     	            if (parts.length < 5) throw new BadConfigFormatException("Invalid computer player line: " + line);
     	            String name = parts[1].trim();
-    	            Color color = parseColor(parts[2].trim());
+    	            String color = parts[2].trim();  // ✅ Just use the string directly
     	            int row = Integer.parseInt(parts[3].trim());
     	            int col = Integer.parseInt(parts[4].trim());
-    	            Player player = new ComputerPlayer(name, color, row, col);
+    	            Player player = new ComputerPlayer(name, color, row, col);  // ✅ uses String color constructor
     	            players.add(player);
 
-    	            deck.add(new Card(name, CardType.PERSON)); // Add PERSON card
+    	            deck.add(new Card(name, CardType.PERSON));
     	            break;
     	        }
     	        case "Weapon": {
@@ -345,6 +346,7 @@ public class Board {
      public int getNumRows() {
     	 return numRows;
      }
+    
      
      public int getNumColumns() {
     	 return numColumns;
@@ -523,21 +525,21 @@ public class Board {
 	 
 	 private void dealSolution() {
 		    List<Card> people = getCardsOfType(CardType.PERSON);
-		    List<Card> weapons = getCardsOfType(CardType.WEAPON);
 		    List<Card> rooms = getCardsOfType(CardType.ROOM);
-
+		    List<Card> weapons = getCardsOfType(CardType.WEAPON);
+		    
 		    Random rand = new Random();
 		    Card person = people.remove(rand.nextInt(people.size()));
 		    Card weapon = weapons.remove(rand.nextInt(weapons.size()));
 		    Card room = rooms.remove(rand.nextInt(rooms.size()));
 
-		    theAnswer = new Solution(person, weapon, room);
+		    theAnswer = new Solution(person, room, weapon);
 
 		    // Add remaining cards back to the deck for dealing
 		    deck.clear();
 		    deck.addAll(people);
-		    deck.addAll(weapons);
 		    deck.addAll(rooms);
+		    deck.addAll(weapons);
 		}
 	 
 	 private void dealRemainingCardsToPlayers() {
@@ -551,38 +553,33 @@ public class Board {
 		    }
 		}
 
-	 private Color parseColor(String colorName) throws BadConfigFormatException {
-		    switch(colorName.toLowerCase()) {
-		        case "blue": return Color.BLUE;
-		        case "black": return Color.BLACK;
-		        case "green": return Color.GREEN;
-		        case "pink": return Color.PINK;
-		        case "gray": return Color.GRAY;
-		        case "lightgray": return Color.LIGHT_GRAY;
-		        default:
-		            throw new BadConfigFormatException("Unknown color: " + colorName);
+	 public boolean checkAccusation(Solution accusation) {
+		    return theAnswer.equals(accusation);
+		}
+	 
+	// For testing purposes
+	 public void setSolution(Solution solution) {
+	     this.theAnswer = solution;
+	 }
+	 
+	 public Card handleSuggestion(Player suggestingPlayer, Solution suggestion) {
+		    List<Player> playersInOrder = getPlayers();
+		    int startIndex = playersInOrder.indexOf(suggestingPlayer);
+		    int numPlayers = playersInOrder.size();
+
+		    for (int i = 1; i < numPlayers; i++) {
+		        Player current = playersInOrder.get((startIndex + i) % numPlayers);
+		        Card disproved = current.disproveSuggestion(suggestion);
+		        if (disproved != null) {
+		            return disproved;
+		        }
 		    }
-	 }
-	 
-	 public boolean checkAccusation (Solution accusation) {
-		 return theAnswer.person.equals(accusation.person) 
-				 && theAnswer.person.equals(accusation.weapon)
-				 && theAnswer.person.equals(accusation.room);
-	 }
-	 
-	 public Card handleSuggestion(Solution suggestion, Player accuser) {
-		 int index = players.indexOf(accuser);
-		 for (int i = 1; i < players.size(); i++) {
-			 Player player = players.get((index + i) % players.size());
-			 Card result = player.disproveSuggestion(suggestion);
-			 
-			 if (result != null) {
-				 return result;
-			 }
-		 }
-		 return null;
-	 }
+		    return null;
+		}
 	 
 	 
+
+	 
+
 
 }

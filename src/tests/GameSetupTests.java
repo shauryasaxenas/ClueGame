@@ -42,7 +42,8 @@ public class GameSetupTests {
 
         Player first = players.get(0);
         assertEquals("Luke Skywalker", first.getName());
-        assertEquals(Color.BLUE, first.getColor());
+        System.out.println(first.getColor());
+        assertEquals("blue", first.getColor());
         assertEquals(0, first.getRow());
         assertEquals(6, first.getColumn());
     }
