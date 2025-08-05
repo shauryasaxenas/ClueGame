@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import clueGame.*;
-
 public abstract class Player {
     private String name;
     private String color;
@@ -104,15 +102,8 @@ public abstract class Player {
 	        case "orange": return Color.ORANGE;
 	        case "pink": return Color.PINK;
 	        case "gray": return Color.GRAY;
+	        case "lightgray": return Color.LIGHT_GRAY;
 	        default: throw new IllegalArgumentException("Unknown color: " + color);
 	    }
 	}
-
-	
-	
-
-
-
-
-
 }

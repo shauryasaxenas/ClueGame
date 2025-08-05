@@ -571,11 +571,48 @@ public class Board {
 		        Player current = playersInOrder.get((startIndex + i) % numPlayers);
 		        Card disproved = current.disproveSuggestion(suggestion);
 		        if (disproved != null) {
-		            return disproved;
-		        }
+		            return disproved;	
+		        }	
 		    }
 		    return null;
+	 }
+	 
+	 public void loadPlayers(String setupFile) {
+		    players.clear();
+		    try (BufferedReader br = new BufferedReader(new FileReader(setupFile))) {
+		        String line;
+		        while ((line = br.readLine()) != null) {
+		            line = line.trim();
+		            if (line.startsWith("Player:")) {
+		                // Format: Player: Type, Name, Color, Row, Col
+		                String playerData = line.substring("Player:".length()).trim();
+		                String[] parts = playerData.split(",");
+		                if (parts.length == 5) {
+		                    String type = parts[0].trim();
+		                    String name = parts[1].trim();
+		                    String color = parts[2].trim();
+		                    int row = Integer.parseInt(parts[3].trim());
+		                    int col = Integer.parseInt(parts[4].trim());
+
+		                    Player newPlayer;
+		                    if (type.equalsIgnoreCase("Human")) {
+		                        newPlayer = new HumanPlayer(name, color, row, col);
+		                    } else if (type.equalsIgnoreCase("Computer")) {
+		                        newPlayer = new ComputerPlayer(name, color, row, col);
+		                    } else {
+		                        // default to Human or throw exception
+		                        newPlayer = new HumanPlayer(name, color, row, col);
+		                    }
+
+		                    players.add(newPlayer);
+		                }
+		            }
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
 		}
+
 	 
 	 
 

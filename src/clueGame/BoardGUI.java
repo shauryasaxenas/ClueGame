@@ -45,24 +45,23 @@ public class BoardGUI extends JPanel {
                 int y = row * CELL_SIZE;
                 char initial = cell.getInitial();
 
-                // Draw cell background
-                if (initial == 'W') {
+                // Draw cell background based on type
+                if (initial == 'W') { // Walkway
                     g.setColor(WALKWAY_COLOR);
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
                     g.setColor(Color.BLACK);
                     g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
-                } else if (initial == 'X') {
+                } else if (initial == 'X') { // Unused
                     g.setColor(UNUSED_COLOR);
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                } else {
-                    // Room cell (solid blob, no internal lines)
+                } else { // Room
                     g.setColor(ROOM_COLORS.getOrDefault(initial, Color.GRAY));
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
                 }
 
-                // Draw door if cell is a doorway
+                // Draw doors if cell is a doorway
                 if (cell.isDoorway()) {
-                	g.setColor(new Color(0, 191, 255)); // Deep Sky Blue
+                    g.setColor(Color.CYAN);  // Door color - change as needed
                     int doorThickness = 6;
                     switch (cell.getDoorDirection()) {
                         case UP:
@@ -82,34 +81,38 @@ public class BoardGUI extends JPanel {
                     }
                 }
 
-                // Draw room name once at room center, above the cell
+                // Draw room name at room center cells, only once per room
                 if (cell.isRoomCenter() && !roomCentersDrawn.contains(cell)) {
                     roomCentersDrawn.add(cell);
                     String roomName = board.getRoom(initial).getName();
+                    g.setColor(Color.WHITE);
                     g.setFont(new Font("SansSerif", Font.BOLD, 14));
 
-                    FontMetrics metrics = g.getFontMetrics();
-                    int textWidth = metrics.stringWidth(roomName);
-                    int textHeight = metrics.getHeight();
+                    // Calculate width and height for centering
+                    FontMetrics fm = g.getFontMetrics();
+                    int textWidth = fm.stringWidth(roomName);
+                    int textHeight = fm.getHeight();
 
-                    int textX = x + (CELL_SIZE / 2) - (textWidth / 2);
-                    int textY = y - 5;  // Draw above the cell
+                    // Draw string centered within the cell (or adjusted)
+                    int textX = x + (CELL_SIZE - textWidth) / 2;
+                    int textY = y + (CELL_SIZE + textHeight) / 2 - fm.getDescent();
 
-                    // Draw background rectangle for readability
-                    g.setColor(new Color(0, 0, 0, 170)); // semi-transparent black
-                    g.fillRect(textX - 2, textY - textHeight + 3, textWidth + 4, textHeight);
-
-                    // Draw room name text
-                    g.setColor(Color.WHITE);
                     g.drawString(roomName, textX, textY);
                 }
             }
         }
 
-        // Example: draw a demo player token
-        g.setColor(Color.BLUE);
-        g.fillOval(6 * CELL_SIZE + 5, 0 * CELL_SIZE + 5, CELL_SIZE - 10, CELL_SIZE - 10);
+        // Draw players at their current locations with their assigned colors
+        for (Player player : board.getPlayers()) {
+            int px = player.getColumn() * CELL_SIZE + 5;
+            int py = player.getRow() * CELL_SIZE + 5;
+            Color playerColor = player.getColorObject();
+
+            g.setColor(playerColor);
+            g.fillOval(px, py, CELL_SIZE - 10, CELL_SIZE - 10);
+        }
     }
+
 
     public static void main(String[] args) {
         Board board = Board.getInstance();
