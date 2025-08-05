@@ -6,6 +6,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * BoardGUI.java
+ * 
+ * This class handles the graphical representation of the Clue board.
+ * It draws cells, rooms, walkways, unused areas, doorways, room names, 
+ * and player pieces. The design incorporates Star Wars–themed color coding.
+ * 
+ * The board is rendered dynamically based on the current game state.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews  
+ * Date: August 5, 2025
+ */
+
 public class BoardGUI extends JPanel {
 
     private static final int CELL_SIZE = 30;

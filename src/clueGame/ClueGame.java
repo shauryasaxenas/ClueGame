@@ -3,6 +3,23 @@ package clueGame;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * ClueGame.java
+ *
+ * This class serves as the main entry point for the Clue: Star Wars Edition game.
+ * It initializes the board, sets up the GUI layout (board, sidebar, control panel),
+ * and injects sample data for testing visual components.
+ *
+ * The game interface includes:
+ *  - A central board display
+ *  - A sidebar showing known cards (in hand and seen)
+ *  - A control panel for displaying turn info, guesses, and responses
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews  
+ * Date: August 5, 2025
+ */
+
+
 public class ClueGame {
 
     public static void main(String[] args) {
