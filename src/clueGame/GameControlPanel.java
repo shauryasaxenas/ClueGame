@@ -55,7 +55,7 @@ public class GameControlPanel extends JPanel {
         leftPanel1.add(currentTurnField);
         leftPanel1.add(emptyPanel1);
         
-     // ----- Column 2: leftPanel2 -----
+        // ----- Column 2: leftPanel2 -----
         JPanel leftPanel2 = new JPanel(new GridBagLayout()); // Centers content
 
         // Panel containing "Roll:" + text field side-by-side
