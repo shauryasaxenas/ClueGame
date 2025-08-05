@@ -9,6 +9,8 @@ public class GameControlPanel extends JPanel {
     private JPanel bottomPanel;
     private JTextField currentTurnField;
     private JTextField dieRollField;
+    private JTextField guessField;
+    private JTextField resultField;
 
     public GameControlPanel() {
     	Font boldFont = new Font("SansSerif", Font.BOLD, 12);
@@ -73,7 +75,7 @@ public class GameControlPanel extends JPanel {
         javax.swing.border.TitledBorder guessBorder = BorderFactory.createTitledBorder("Guess");
         guessBorder.setTitleFont(boldFont);
         leftGuessPanel.setBorder(guessBorder);
-        JTextField guessField = new JTextField();
+        guessField = new JTextField();
         guessField.setEditable(false);
         leftGuessPanel.add(guessField);
 
@@ -82,7 +84,7 @@ public class GameControlPanel extends JPanel {
         javax.swing.border.TitledBorder resultBorder = BorderFactory.createTitledBorder("Guess Result");
         resultBorder.setTitleFont(boldFont);
         rightResultPanel.setBorder(resultBorder);
-        JTextField resultField = new JTextField();
+        resultField = new JTextField();
         resultField.setEditable(false);
         rightResultPanel.add(resultField);
 
@@ -99,6 +101,22 @@ public class GameControlPanel extends JPanel {
         add(topPanel);
         add(bottomPanel);
     }
+    
+    public void setTurn(String playerName) {
+    	currentTurnField.setText(playerName);
+    }
+    
+    public void setRoll(int roll) {
+    	dieRollField.setText(Integer.toString(roll));
+    }
+    
+    public void setGuess(String guess) {
+    	guessField.setText(guess);
+    }
+    
+    public void setGuessResult(String guessResult) {
+    	resultField.setText(guessResult);
+    }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Game Control Panel");
@@ -111,5 +129,10 @@ public class GameControlPanel extends JPanel {
         frame.setSize(750, 180);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        panel.setTurn("Darth Vader");
+        panel.setRoll(5);
+        panel.setGuess("I have no guess!");
+        panel.setGuessResult("So you have nothing?");
     }
 }
