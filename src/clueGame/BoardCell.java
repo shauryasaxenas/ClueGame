@@ -98,5 +98,8 @@ public class BoardCell {
 	public boolean isOccupied() {
 		return isOccupied;
 	}
-
+	
+	public boolean isRoom() {
+	    return initial != 'W' && initial != 'X';
+	}
 }
