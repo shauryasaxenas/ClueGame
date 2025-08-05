@@ -15,7 +15,7 @@ public class ClueGame {
         frame.setLayout(new BorderLayout());
 
         // Main board panel (center)
-        BoardGUI boardGUI = new BoardGUI();
+        BoardGUI boardGUI = new BoardGUI(board);
 
         // Sidebar on the right
         GameControlSideBar sideBar = new GameControlSideBar();
