@@ -9,6 +9,23 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Iterator;
 
+/**
+ * GameControlSideBar.java
+ * 
+ * This class represents the sidebar panel in the Clue game GUI that displays
+ * the known cards categorized by People, Rooms, and Weapons.
+ * 
+ * Each category shows two sub-panels:
+ * - Cards currently in the player's hand
+ * - Cards seen and who showed them (with color coding for players)
+ * 
+ * The panel updates dynamically based on game state to reflect knowledge
+ * about cards.
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews
+ * Date: August 4, 2025
+ */
+
 public class GameControlSideBar extends JPanel {
 
     private JPanel peoplePanel;
