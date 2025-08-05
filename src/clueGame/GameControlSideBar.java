@@ -37,6 +37,7 @@ public class GameControlSideBar extends JPanel {
     public GameControlSideBar() {
         setLayout(new GridLayout(3, 1));
         setBorder(BorderFactory.createTitledBorder("Known Cards"));
+        setPreferredSize(new Dimension(250,600));
 
         peoplePanel = buildCardPanel("People");
         roomsPanel = buildCardPanel("Rooms");
