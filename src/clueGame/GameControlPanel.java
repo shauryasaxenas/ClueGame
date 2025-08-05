@@ -3,6 +3,22 @@ package clueGame;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * GameControlPanel.java
+ * 
+ * This class defines the GUI control panel for the Clue game, which includes:
+ * - Displaying the current player's turn
+ * - Showing the die roll
+ * - Displaying the current guess and guess result
+ * - Buttons for making an accusation and moving to the next player
+ * 
+ * The panel is divided into a top section (with player info and controls)
+ * and a bottom section (with guess and result display).
+ * 
+ * Authors: Shaurya Saxena, Logan Matthews  
+ * Date: August 4, 2025
+ */
+
 public class GameControlPanel extends JPanel {
 
     private JPanel topPanel;
