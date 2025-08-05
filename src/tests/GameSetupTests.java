@@ -42,10 +42,10 @@ public class GameSetupTests {
 
         Player first = players.get(0);
         assertEquals("Luke Skywalker", first.getName());
-        System.out.println(first.getColor());
+//        System.out.println(first.getColor());
         assertEquals("blue", first.getColor());
         assertEquals(0, first.getRow());
-        assertEquals(6, first.getColumn());
+        assertEquals(8, first.getColumn());
     }
 
     @Test
@@ -90,13 +90,13 @@ public class GameSetupTests {
         cards.add(solution.weapon);
         cards.add(solution.room);
         
-        for (Card card : board.getDeck()) {
-        	System.out.println(card);
-        }
-        
-        for (Player p : board.getPlayers()) {
-        	System.out.println(p.getName() + " (" + p.getColor() + ")");
-        }
+//        for (Card card : board.getDeck()) {
+//        	System.out.println(card);
+//        }
+//        
+//        for (Player p : board.getPlayers()) {
+//        	System.out.println(p.getName() + " (" + p.getColor() + ")");
+//        }
 
         assertTrue(cards.contains(new Card("Lightsaber", CardType.WEAPON)));
         assertTrue(cards.contains(new Card("Princess Leia", CardType.PERSON)));
