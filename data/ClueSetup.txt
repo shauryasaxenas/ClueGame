@@ -12,12 +12,12 @@ Room, Dagobah Swamp Hut, H
 Space, Unused, X
 Space, Walkway, W
 // People and their start locations
-Player, Luke Skywalker, blue, 0, 6
-Computer, Darth Vader, black, 4, 9
-Computer, Han Solo, green, 15, 0
-Computer, Princess Leia, pink, 6, 14
-Computer, Obi-Wan Kenobi, gray, 17, 12
-Computer, Yoda, lightgray, 12, 3
+Player, Luke Skywalker, blue, 0, 8
+Computer, Darth Vader, black, 0, 20
+Computer, Han Solo, green, 20, 6
+Computer, Princess Leia, pink, 8, 23
+Computer, Obi-Wan Kenobi, gray, 20, 13
+Computer, Yoda, lightgray, 13, 0
 // Weapons
 Weapon, Lightsaber
 Weapon, Blaster
