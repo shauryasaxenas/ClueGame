@@ -27,9 +27,10 @@ public class GameControlPanel extends JPanel {
     private JTextField dieRollField;
     private JTextField guessField;
     private JTextField resultField;
+    private JButton accusationButton;  // <-- class field
 
     public GameControlPanel() {
-    	Font boldFont = new Font("SansSerif", Font.BOLD, 12);
+        Font boldFont = new Font("SansSerif", Font.BOLD, 12);
         setLayout(new GridLayout(2, 1)); // Top half + bottom half
 
         // === TOP PANEL ===
@@ -70,17 +71,20 @@ public class GameControlPanel extends JPanel {
         // Add centered panel to leftPanel2
         leftPanel2.add(rollSubPanel);
 
+        // Column 3: Accusation button (fixed to use field)
+        accusationButton = new JButton("Make Accusation");
+        accusationButton.addActionListener(e -> {
+            handleAccusationButtonPressed();
+        });
 
-        // Column 3: JButton
-        JButton accuseButton = new JButton("Make Accusation");
-
-        // Column 4: JButton
+        // Column 4: Next Player button
         JButton nextButton = new JButton("Next Player");
+        nextButton.addActionListener(e -> {Board.getInstance().handleNextTurn();});
 
         // Add to top panel
         topPanel.add(leftPanel1);
         topPanel.add(leftPanel2);
-        topPanel.add(accuseButton);
+        topPanel.add(accusationButton);
         topPanel.add(nextButton);
 
         // === BOTTOM PANEL ===
@@ -110,7 +114,7 @@ public class GameControlPanel extends JPanel {
 
         turnLabel.setFont(boldFont);
         rollLabel.setFont(boldFont);
-        accuseButton.setFont(boldFont);
+        accusationButton.setFont(boldFont);
         nextButton.setFont(boldFont);
         
         // Add top and bottom panels to main panel
@@ -118,21 +122,74 @@ public class GameControlPanel extends JPanel {
         add(bottomPanel);
     }
     
+    // Enable or disable the accusation button
+    public void enableAccusationButton(boolean enable) {
+        accusationButton.setEnabled(enable);
+    }
+
+    // Setters for UI fields
     public void setTurn(String playerName) {
-    	currentTurnField.setText(playerName);
+        currentTurnField.setText(playerName);
     }
     
     public void setRoll(int roll) {
-    	dieRollField.setText(Integer.toString(roll));
+        dieRollField.setText(Integer.toString(roll));
     }
     
     public void setGuess(String guess) {
-    	guessField.setText(guess);
+        guessField.setText(guess);
     }
     
     public void setGuessResult(String guessResult) {
-    	resultField.setText(guessResult);
+        resultField.setText(guessResult);
     }
+
+    // Placeholder for accusation button click handler
+    private void handleAccusationButtonPressed() {
+        Board board = Board.getInstance();
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+
+        AccusationDialog accusationDialog = new AccusationDialog(
+            owner,
+            board.getRoomNames(),   // all rooms for accusation
+            board.getPeopleNames(),
+            board.getWeaponNames()
+        );
+
+        accusationDialog.setVisible(true);
+
+        if (accusationDialog.isSubmitted()) {
+            Solution accusation = board.createSolutionFromStrings(
+                accusationDialog.getSelectedPerson(),
+                accusationDialog.getSelectedWeapon(),
+                accusationDialog.getSelectedRoom()
+            );
+
+            if (accusation != null) {
+                boolean correct = board.checkAccusation(accusation);
+
+                if (correct) {
+                    JOptionPane.showMessageDialog(this, "Correct! You solved the mystery!");
+                    // Implement game win logic here
+                } else {
+                	    JOptionPane.showMessageDialog(this, "Wrong accusation! You are out of the game.");
+                	    Player currentPlayer = board.getCurrentPlayer();
+                	    currentPlayer.setEliminated(true);
+
+                	    // Disable the accusation button so player cannot accuse again
+                	    enableAccusationButton(false);
+
+                	    // Optionally, disable controls or mark the human turn as finished
+                	    board.setHumanMustFinish(false);
+                	}
+
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid accusation selection.");
+            }
+        }
+    
+
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Game Control Panel");

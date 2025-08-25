@@ -1,5 +1,7 @@
 package clueGame;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +23,7 @@ public class BoardCell {
 	private char secretPassage = ' ';
 	private Set<BoardCell> adjList = new HashSet<>();
 	private boolean isOccupied = false;
+	private boolean isHighlighted = false;
 	
 	public BoardCell() {
 		
@@ -101,5 +104,24 @@ public class BoardCell {
 	
 	public boolean isRoom() {
 	    return initial != 'W' && initial != 'X';
+	}
+	
+	public void setHighlighted(boolean highlight) {
+	    this.isHighlighted = highlight;
+	}
+
+	public boolean isHighlighted() {
+	    return isHighlighted;
+	}
+	
+	public void draw(Graphics g, int cellSize) {
+	    if (isHighlighted) {
+	        g.setColor(Color.CYAN);  // highlight color
+	    } else {
+	        g.setColor(Color.LIGHT_GRAY); // normal color
+	    }
+	    g.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+	    g.setColor(Color.BLACK);
+	    g.drawRect(col * cellSize, row * cellSize, cellSize, cellSize);
 	}
 }

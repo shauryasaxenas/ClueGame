@@ -1,7 +1,16 @@
 package clueGame;
 
 import java.util.*;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 
 
@@ -15,7 +24,7 @@ import java.io.*;
  * Date: July 21, 2025
  */
 
-public class Board {
+public class Board extends JPanel {
 	private static final char CENTER_MARKER = '*';
 	private static final char DOOR_RIGHT = '>';
 	private static final char DOOR_LEFT = '<';
@@ -34,6 +43,13 @@ public class Board {
 	private List<Player> players = new ArrayList<>();
 	private List<Card> deck = new ArrayList<>();
 	private Solution theAnswer;
+	private int currentPlayerIndex = -1;
+	private boolean humanMustFinish = false;
+	private GameControlPanel controlPanel;
+	private BoardGUI boardGUI;
+	private boolean gameOver = false;
+
+	
 	
 	/*
      * variable and methods used for singleton pattern
@@ -67,6 +83,8 @@ public class Board {
              // Log the error (for extra credit)
              System.err.println("Configuration error: " + e.getMessage());
          }
+    	 
+    	
      }
      
      public void loadLayoutConfig() throws BadConfigFormatException {
@@ -298,10 +316,10 @@ public class Board {
     	        case "Player": {
     	            if (parts.length < 5) throw new BadConfigFormatException("Invalid player line: " + line);
     	            String name = parts[1].trim();
-    	            String color = parts[2].trim();  // ✅ use String
+    	            String color = parts[2].trim();  
     	            int row = Integer.parseInt(parts[3].trim());
     	            int col = Integer.parseInt(parts[4].trim());
-    	            Player player = new HumanPlayer(name, color, row, col);  // ✅ use String
+    	            Player player = new HumanPlayer(name, color, row, col);  
     	            players.add(player);
 
     	            deck.add(new Card(name, CardType.PERSON));
@@ -311,10 +329,10 @@ public class Board {
     	        case "Computer": {
     	            if (parts.length < 5) throw new BadConfigFormatException("Invalid computer player line: " + line);
     	            String name = parts[1].trim();
-    	            String color = parts[2].trim();  // ✅ Just use the string directly
+    	            String color = parts[2].trim(); 
     	            int row = Integer.parseInt(parts[3].trim());
     	            int col = Integer.parseInt(parts[4].trim());
-    	            Player player = new ComputerPlayer(name, color, row, col);  // ✅ uses String color constructor
+    	            Player player = new ComputerPlayer(name, color, row, col); 
     	            players.add(player);
 
     	            deck.add(new Card(name, CardType.PERSON));
@@ -379,16 +397,41 @@ public class Board {
 		 }
 	 }
 	 
-	 public void calcTargets(BoardCell startCell, int pathLength) {
-		 targets = new HashSet<>();
-		 visited = new HashSet<>();
-		 
-		 if (startCell.getInitial() != 'W' && !startCell.isRoomCenter()) {
-			 return;
-		 }
-		 visited.add(startCell);
-		 findAllTargets(startCell, pathLength);
-	 }
+	
+	 public Set<BoardCell> calcTargets(int row, int col, int pathLength) {
+		    targets = new HashSet<>();
+		    visited = new HashSet<>();
+
+		    BoardCell startCell = grid[row][col];
+		    visited.add(startCell);
+		    findAllTargets(startCell, pathLength); // This fills targets
+
+		    // Add secret passage cell as a target, if it exists
+		    char secret = startCell.getSecretPassage();
+		    if (secret != ' ') {
+		        BoardCell passageCell = findRoomCenterCell(secret);
+		        if (passageCell != null && !passageCell.isOccupied()) {
+		            targets.add(passageCell);
+		        }
+		    }
+
+		    // Remove occupied cells from targets (except secret passage cell already handled)
+		    for (Player p : players) {
+		        BoardCell occupiedCell = grid[p.getRow()][p.getColumn()];
+		        targets.remove(occupiedCell);
+		    }
+
+		    return targets;
+		}
+
+		// Overloaded method to satisfy test calls using BoardCell
+		public Set<BoardCell> calcTargets(BoardCell startCell, int pathLength) {
+		    return calcTargets(startCell.getRow(), startCell.getColumn(), pathLength);
+		}
+
+
+
+
 
 	 
 	 public Set<BoardCell> getTargets() {
@@ -462,7 +505,6 @@ public class Board {
 
 			 // Add secret passage, if any
 			 char secret = cell.getSecretPassage();
-			 System.out.println(secret);
 			 if (secret != ' ') {
 				 Room destinationRoom = roomMap.get(secret);
 				 if (destinationRoom != null && destinationRoom.getCenterCell() != null) {
@@ -563,19 +605,68 @@ public class Board {
 	 }
 	 
 	 public Card handleSuggestion(Player suggestingPlayer, Solution suggestion) {
+		    Card personCard = suggestion.getPerson();
+		    Card roomCard   = suggestion.getRoom();
+		    Card weaponCard = suggestion.getWeapon();
+
+		    // 1. Move suggested person into the center of the suggested room
+		    moveSuggestedPersonToRoom(personCard, roomCard);
+
+		    // Force a repaint so the piece appears in the new location immediately
+		    repaint();
+
+		    // 2. Find the first player who can disprove
 		    List<Player> playersInOrder = getPlayers();
 		    int startIndex = playersInOrder.indexOf(suggestingPlayer);
-		    int numPlayers = playersInOrder.size();
+		    Card disproved = null;
+		    Player disprover = null;
 
-		    for (int i = 1; i < numPlayers; i++) {
-		        Player current = playersInOrder.get((startIndex + i) % numPlayers);
-		        Card disproved = current.disproveSuggestion(suggestion);
-		        if (disproved != null) {
-		            return disproved;	
-		        }	
+		    for (int i = 1; i < playersInOrder.size(); i++) {
+		        Player current = playersInOrder.get((startIndex + i) % playersInOrder.size());
+		        Card card = current.disproveSuggestion(suggestion);
+		        if (card != null) {
+		            disproved = card;
+		            disprover = current;
+		            break;
+		        }
 		    }
-		    return null;
-	 }
+
+		    // 3. Display suggestion in GameControlPanel (if available)
+		    if (controlPanel != null) {
+		        String suggestionText = suggestingPlayer.getName() + " suggests " +
+		                personCard.getName() + ", " +
+		                roomCard.getName() + ", " +
+		                weaponCard.getName();
+		        controlPanel.setGuess(suggestionText);
+
+		        // 4. Display result depending on type of player and whether disproved
+		        if (disprover == null) {
+		            controlPanel.setGuessResult("No new clue");
+
+		            // If computer, prep for accusation
+		            if (suggestingPlayer instanceof ComputerPlayer &&
+		                !suggestingPlayer.getHand().contains(roomCard)) {
+		                ((ComputerPlayer) suggestingPlayer).setReadyToAccuse(true);
+		                ((ComputerPlayer) suggestingPlayer).setStoredAccusation(suggestion);
+		            }
+		        } else {
+		            if (suggestingPlayer instanceof HumanPlayer) {
+		                controlPanel.setGuessResult(
+		                    "Disproven by " + disprover.getName() + ": " + disproved.getName()
+		                );
+		            } else {
+		                controlPanel.setGuessResult(
+		                    "Disproven by " + disprover.getName()
+		                );
+		            }
+		        }
+		    }
+
+		    return disproved;
+		}
+
+	 
+	 
 	 
 	 public void loadPlayers(String setupFile) {
 		    players.clear();
@@ -612,11 +703,279 @@ public class Board {
 		        e.printStackTrace();
 		    }
 		}
-
 	 
+	 public void handleNextTurn() {
+		    // 1. If game over, stop
+		    if (gameOver) {
+		        JOptionPane.showMessageDialog(null, "Game over! Please start a new game.");
+		        return;
+		    }
+
+		    // 2. Prevent skipping human's move if they haven't finished
+		    if (humanMustFinish) {
+		        JOptionPane.showMessageDialog(null, "You must finish your move before ending your turn!");
+		        return;
+		    }
+
+		    // 3. Advance to next player
+		    do {
+		        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+		    } while (players.get(currentPlayerIndex).isEliminated());
+		    Player currentPlayer = players.get(currentPlayerIndex);
+
+		    // 4. Roll dice for movement
+		    int roll = rollDie();
+
+		    // 5. Update control panel
+		    String turnMessage = "It is " + currentPlayer.getName() + "'s turn. Roll: " + roll;
+		    controlPanel.setTurn(turnMessage);
+		    controlPanel.setRoll(roll);
+
+		    if (currentPlayer instanceof ComputerPlayer) {
+		        ComputerPlayer cpu = (ComputerPlayer) currentPlayer;
+
+		        // --- Check pending accusation from last turn ---
+		        if (cpu.isReadyToAccuse()) {
+		            boolean correct = checkAccusation(cpu.getStoredAccusation());
+		            JOptionPane.showMessageDialog(null,
+		                cpu.getName() + (correct ? " wins!" : " loses!"));
+		            gameOver = true;
+		            cpu.setReadyToAccuse(false);
+		            cpu.setStoredAccusation(null);
+		            return; // End turn immediately after accusation
+		        }
+
+		        // --- Normal move ---
+		        Set<BoardCell> targets = calcTargets(cpu.getRow(), cpu.getColumn(), roll);
+		        BoardCell chosen = cpu.selectTarget(targets);
+		        cpu.moveTo(chosen);
+
+		        clearTargets();
+		        boardGUI.repaint();
+
+		        // --- If ended in a room, create and handle suggestion ---
+		        if (chosen.isRoomCenter()) {
+		            Solution suggestion = cpu.createSuggestion(this); // Pass board instance
+		            handleSuggestion(cpu, suggestion); // This sets accusation state if needed
+		        }
+
+		    } else {
+		        // --- Human player's turn ---
+		        controlPanel.enableAccusationButton(true);
+		        humanMustFinish = true;
+		        Set<BoardCell> targets = calcTargets(currentPlayer.getRow(), currentPlayer.getColumn(), roll);
+		        highlightTargets(targets);
+		        boardGUI.repaint();
+		    }
+		}
+
+
+	 public void setControlPanel(GameControlPanel controlPanel) {
+		 this.controlPanel = controlPanel;
+		}
+ 
 	 
-
+	 private int rollDie() {
+		Random rand = new Random();
+		return rand.nextInt(6) + 1; // 1 to 6
+		}
 	 
+	 public void highlightTargets(Set<BoardCell> newTargets) {
+		    
+		    // Clear all previous highlights
+		 for (int row = 0; row < numRows; row++) {
+		    for (int col = 0; col < numColumns; col++) {
+		        grid[row][col].setHighlighted(false);
+		    }
+		}
+		    // Set highlights on targets
+		for (BoardCell cell : newTargets) {
+		    cell.setHighlighted(true);
+		    }
+
+		    boardGUI.repaint();
+		}
+
+	public boolean isHumanTurnToMove() {
+		return humanMustFinish;
+		}
+	 
+	public boolean isHumanMustFinish() {
+		return humanMustFinish;
+		}
+
+	public void setHumanMustFinish(boolean value) {
+		humanMustFinish = value;
+	    }
+
+	public boolean isTarget(BoardCell cell) {
+		return targets.contains(cell);
+	    }
+
+	public void moveCurrentPlayerTo(BoardCell cell) {
+		Player currentPlayer = players.get(currentPlayerIndex);
+		currentPlayer.moveTo(cell);
+	    }
+
+	public void clearHighlights() {
+		for (int r = 0; r < numRows; r++) {
+			for (int c = 0; c < numColumns; c++) {
+				grid[r][c].setHighlighted(false);
+		    }
+		}
+		targets.clear();
+	    }
+	 
+	public Player getCurrentPlayer() {
+		return players.get(currentPlayerIndex);
+		}
+		
+	public void setBoardGUI(BoardGUI boardGUI) {
+		this.boardGUI = boardGUI;
+		}
+		
+	public void clearTargets() {
+		targets.clear();
+		}
+		
+	public BoardCell findRoomCenterCell(char initial) {
+		for (int row = 0; row < numRows; row++) {
+			for (int col = 0; col < numColumns; col++) {
+				BoardCell cell = grid[row][col];
+		        if (cell.getInitial() == initial && cell.isRoomCenter()) {
+		        	return cell;
+		        }
+		     }
+		}
+		return null;  // Not found
+		}
+	public boolean isGameOver() {
+	    return gameOver;
+	}
+	
+	private void moveSuggestedPersonToRoom(Card personCard, Card roomCard) {
+	    BoardCell roomCell = getRoomCell(roomCard);
+	    if (roomCell == null) return; // room not found
+
+	    for (Player p : players) {
+	        if (p.getName().equals(personCard.getName())) {
+	            p.setLocation(roomCell.getRow(), roomCell.getColumn());
+	            break;
+	        }
+	    }
+	}
+	
+	private BoardCell getRoomCell(Card roomCard) {
+	    for (Map.Entry<Character, Room> entry : roomMap.entrySet()) {
+	        if (entry.getValue().getName().equals(roomCard.getName())) {
+	            return entry.getValue().getCenterCell();
+	        }
+	    }
+	    return null;
+	}
+	
+	public void processHumanMove(BoardCell destination, Component parentComponent) {
+	    Player human = players.get(currentPlayerIndex);
+	    
+	    if (human.isEliminated()) {
+	        JOptionPane.showMessageDialog(parentComponent, "You have been eliminated and cannot move.");
+	        return; // skip move
+	    }
+	    
+	    human.moveTo(destination);
+	    clearHighlights();
+	    boardGUI.repaint();
+
+	    if (destination.isRoomCenter()) {
+	        // Get the room name for the cell the human is in
+	        String currentRoomName = getRoom(destination).getName();
+
+	        // Get the parent Frame for the dialog
+	        Frame frame = JOptionPane.getFrameForComponent(parentComponent);
+
+	        // Pass only the current room name
+	        SuggestionDialog suggestionDialog = new SuggestionDialog(
+	            frame,
+	            currentRoomName,
+	            getPeopleNames(),
+	            getWeaponNames()
+	        );
+
+	        suggestionDialog.setVisible(true);  // This will block until closed
+
+	        if (suggestionDialog.isSubmitted()) {
+	            Solution suggestion = createSolutionFromStrings(
+	                suggestionDialog.getSelectedPerson(),
+	                suggestionDialog.getSelectedWeapon(),
+	                suggestionDialog.getSelectedRoom()
+	            );
+	            handleSuggestion(human, suggestion);
+	        }
+	    }
+
+	    humanMustFinish = false; // Mark human done, allow next turn
+	}
 
 
+	public List<String> getPeopleNames() {
+	    List<String> people = new ArrayList<>();
+	    for (Player p : players) {
+	        people.add(p.getName());
+	    }
+	    return people;
+	}
+	
+	public List<String> getWeaponNames() {
+	    List<String> weapons = new ArrayList<>();
+	    for (Card c : deck) {
+	        if (c.getType() == CardType.WEAPON) {
+	            weapons.add(c.getName());
+	        }
+	    }
+	    return weapons;
+	}
+	
+	public String getRoomName(BoardCell cell) {
+	    Room room = roomMap.get(cell.getInitial());
+	    if (room != null) {
+	        return room.getName();
+	    } else {
+	        return "Unknown Room";
+	    }
+	   }
+	
+	public List<String> getRoomNames() {
+	    List<String> rooms = new ArrayList<>();
+	    for (Room room : roomMap.values()) {
+	        rooms.add(room.getName());
+	    }
+	    Collections.sort(rooms);
+	    return rooms;
+	}
+
+	
+	public Solution createSolutionFromStrings(String personName, String weaponName, String roomName) {
+	    Card personCard = null;
+	    Card weaponCard = null;
+	    Card roomCard = null;
+
+	    for (Card c : deck) {
+	        if (c.getName().equalsIgnoreCase(personName)) {
+	            personCard = c;
+	        }
+	        if (c.getName().equalsIgnoreCase(weaponName)) {
+	            weaponCard = c;
+	        }
+	        if (c.getName().equalsIgnoreCase(roomName)) {
+	            roomCard = c;
+	        }
+	    }
+
+	    if (personCard != null && weaponCard != null && roomCard != null) {
+	        return new Solution(personCard, weaponCard, roomCard);
+	    } else {
+	        // You can also throw an exception or handle the error here
+	        return null;
+	    }
+	}
 }

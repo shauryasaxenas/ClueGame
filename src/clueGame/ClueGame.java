@@ -24,6 +24,8 @@ public class ClueGame {
 
     public static void main(String[] args) {
         Board board = Board.getInstance();
+        BoardGUI gui = new BoardGUI(board);
+        board.setBoardGUI(gui);
         board.setConfigFiles("data/ClueLayout.csv", "data/ClueSetup.txt");
         board.initialize();
 
@@ -33,29 +35,51 @@ public class ClueGame {
 
         // Main board panel (center)
         BoardGUI boardGUI = new BoardGUI(board);
-
+        board.setBoardGUI(boardGUI);
+        JOptionPane.showMessageDialog(null, "You are Luke Skywalker. Can you find the solution before the Computer players?", "Welcome to Clue", JOptionPane.INFORMATION_MESSAGE);
+        
+        
         // Sidebar on the right
         GameControlSideBar sideBar = new GameControlSideBar();
 
         // Control panel at the bottom
         GameControlPanel controlPanel = new GameControlPanel();
+        board.setControlPanel(controlPanel);
+        board.handleNextTurn();
 
         // Example sample data for sidebar
-        java.util.List<String> inHandPeople = java.util.Arrays.asList("Luke Skywalker", "Han Solo");
-        java.util.List<String> inHandRooms = java.util.Arrays.asList("Jedi Council Chamber");
-        java.util.List<String> inHandWeapons = java.util.Arrays.asList("Lightsaber");
+        Player humanPlayer = null;
+        for (Player p : board.getPlayers()) {
+            if (p instanceof HumanPlayer) {
+                humanPlayer = p;
+                break;
+            }
+        }
+
+        java.util.List<String> inHandPeople = new java.util.ArrayList<>();
+        java.util.List<String> inHandRooms = new java.util.ArrayList<>();
+        java.util.List<String> inHandWeapons = new java.util.ArrayList<>();
+
+        if (humanPlayer != null) {
+            for (Card card : humanPlayer.getHand()) {
+                switch (card.getType()) {
+                    case PERSON -> inHandPeople.add(card.getName());
+                    case ROOM -> inHandRooms.add(card.getName());
+                    case WEAPON -> inHandWeapons.add(card.getName());
+                }
+            }
+        }
 
         java.util.Map<String, String> seenPeopleBy = new java.util.HashMap<>();
-        seenPeopleBy.put("Yoda", "Princess Leia");
-        seenPeopleBy.put("Darth Vader", "Luke Skywalker");
+//        seenPeopleBy.put("Yoda", "Princess Leia");
 
         java.util.Map<String, String> seenRoomsBy = new java.util.HashMap<>();
-        seenRoomsBy.put("Trash Compactor", "Han Solo");
-        seenRoomsBy.put("Sith Temple", "Yoda");
+//        seenRoomsBy.put("Trash Compactor", "Han Solo");
+//        seenRoomsBy.put("Sith Temple", "Yoda");
 
         java.util.Map<String, String> seenWeaponsBy = new java.util.HashMap<>();
-        seenWeaponsBy.put("Thermal Detonator", "Obi-Wan Kenobi");
-        seenWeaponsBy.put("Bowcaster", "Princess Leia");
+//        seenWeaponsBy.put("Thermal Detonator", "Obi-Wan Kenobi");
+//        seenWeaponsBy.put("Bowcaster", "Princess Leia");
 
         sideBar.updatePanels(
             inHandPeople, seenPeopleBy,
@@ -71,10 +95,10 @@ public class ClueGame {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        // Example setting control panel fields
-        controlPanel.setTurn("Darth Vader");
-        controlPanel.setRoll(5);
-        controlPanel.setGuess("I have no guess!");
-        controlPanel.setGuessResult("So you have nothing?");
+//      Example setting control panel fields
+//        controlPanel.setTurn("Darth Vader");
+//        controlPanel.setRoll(5);
+//        controlPanel.setGuess("I have no guess!");
+//        controlPanel.setGuessResult("So you have nothing?");
     }
 }

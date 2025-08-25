@@ -10,6 +10,7 @@
 package clueGame;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -22,6 +23,7 @@ public abstract class Player {
     private int column;
     private List<Card> hand;
     private static final Random rand = new Random();
+    private boolean eliminated = false;
 
     public Player(String name, String color, int row, int column) {
         this.name = name;
@@ -105,5 +107,24 @@ public abstract class Player {
 	        case "lightgray": return Color.LIGHT_GRAY;
 	        default: throw new IllegalArgumentException("Unknown color: " + color);
 	    }
+	}
+	
+	public void moveTo(BoardCell cell) {
+	    this.row = cell.getRow();
+	    this.column = cell.getColumn();
+	}
+	
+	public void draw(Graphics g) {
+	    int cellSize = 25;
+	    g.setColor(getColorObject()); 
+	    g.fillOval(column * cellSize, row * cellSize, cellSize, cellSize);
+	}
+	
+	public boolean isEliminated() {
+	    return eliminated;
+	}
+
+	public void setEliminated(boolean eliminated) {
+	    this.eliminated = eliminated;
 	}
 }

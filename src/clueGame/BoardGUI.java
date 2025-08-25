@@ -2,9 +2,13 @@ package clueGame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+
 
 /**
  * BoardGUI.java
@@ -42,7 +46,17 @@ public class BoardGUI extends JPanel {
 
     public BoardGUI(Board board) {
         this.board = board;
+        
         setPreferredSize(new Dimension(board.getNumColumns() * CELL_SIZE, board.getNumRows() * CELL_SIZE));
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleBoardClick(e.getX(), e.getY());
+                
+                
+            }
+        });
+
     }
 
     @Override
@@ -51,6 +65,9 @@ public class BoardGUI extends JPanel {
 
         Set<BoardCell> roomCentersDrawn = new HashSet<>();
 
+        // Get the current target cells from Board
+        Set<BoardCell> targets = board.getTargets();
+
         for (int row = 0; row < board.getNumRows(); row++) {
             for (int col = 0; col < board.getNumColumns(); col++) {
                 BoardCell cell = board.getCell(row, col);
@@ -58,23 +75,31 @@ public class BoardGUI extends JPanel {
                 int y = row * CELL_SIZE;
                 char initial = cell.getInitial();
 
-                // Draw cell background based on type
-                if (initial == 'W') { // Walkway
+                // If cell is a target, highlight it first
+                if (targets != null && targets.contains(cell)) {
+                    g.setColor(Color.RED);  // Highlight color for targets
+                    g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+                } 
+                else if (initial == 'W') { // Walkway
                     g.setColor(WALKWAY_COLOR);
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
                     g.setColor(Color.BLACK);
                     g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
-                } else if (initial == 'X') { // Unused
+                } 
+                else if (initial == 'X') { // Unused
                     g.setColor(UNUSED_COLOR);
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                } else { // Room
+                } 
+                else { // Room
                     g.setColor(ROOM_COLORS.getOrDefault(initial, Color.GRAY));
                     g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
                 }
 
                 // Draw doors if cell is a doorway
                 if (cell.isDoorway()) {
-                    g.setColor(Color.CYAN);  // Door color - change as needed
+                    g.setColor(Color.CYAN);  // Door color
                     int doorThickness = 6;
                     switch (cell.getDoorDirection()) {
                         case UP:
@@ -101,12 +126,10 @@ public class BoardGUI extends JPanel {
                     g.setColor(Color.WHITE);
                     g.setFont(new Font("SansSerif", Font.BOLD, 14));
 
-                    // Calculate width and height for centering
                     FontMetrics fm = g.getFontMetrics();
                     int textWidth = fm.stringWidth(roomName);
                     int textHeight = fm.getHeight();
 
-                    // Draw string centered within the cell (or adjusted)
                     int textX = x + (CELL_SIZE - textWidth) / 2;
                     int textY = y + (CELL_SIZE + textHeight) / 2 - fm.getDescent();
 
@@ -115,7 +138,7 @@ public class BoardGUI extends JPanel {
             }
         }
 
-        // Draw players at their current locations with their assigned colors
+        // Draw players last to ensure they appear on top
         for (Player player : board.getPlayers()) {
             int px = player.getColumn() * CELL_SIZE + 5;
             int py = player.getRow() * CELL_SIZE + 5;
@@ -138,5 +161,80 @@ public class BoardGUI extends JPanel {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
     }
+    
+    public void handleBoardClick(int mouseX, int mouseY) {
+    	GameControlPanel controlPanel = new GameControlPanel();
+    	 if (!board.isHumanMustFinish()) return;
+        // 1) Check if human must finish turn (ask Board)
+        if (!board.isHumanMustFinish()) {
+            return;  // Not human turn or already moved
+        }
+
+        int col = mouseX / CELL_SIZE;
+        int row = mouseY / CELL_SIZE;
+
+        if (row < 0 || row >= board.getNumRows() || col < 0 || col >= board.getNumColumns()) {
+            return;  // Outside board
+        }
+
+        BoardCell clickedCell = board.getCell(row, col);
+
+        // 2) Check if clicked cell is in targets (ask Board)
+        if (board.isTarget(clickedCell)) {
+            // 3) Move player (ask Board)
+            board.moveCurrentPlayerTo(clickedCell);
+
+            // 4) Clear highlights and targets
+            board.clearHighlights();
+
+            // 5) Mark human turn finished
+            board.setHumanMustFinish(false);
+
+            // 6) Update control panel (you might need a reference to controlPanel here)
+            controlPanel.setTurn(board.getCurrentPlayer().getName() + "'s turn");
+            controlPanel.setRoll(0);
+            controlPanel.setGuess("");
+            controlPanel.setGuessResult("");
+
+            repaint();
+
+         // After moving the human player:
+            if (clickedCell.isRoomCenter()) {
+                // Get the room name for the clicked cell
+                String currentRoom = board.getRoom(clickedCell.getInitial()).getName();
+
+                // Find the owning Frame for the dialog
+                Frame owner = JOptionPane.getFrameForComponent(this);
+
+                // Create the dialog with the SINGLE room name (not a list)
+                SuggestionDialog suggestionDialog = new SuggestionDialog(
+                    owner,
+                    currentRoom,
+                    board.getPeopleNames(),
+                    board.getWeaponNames()
+                );
+
+                suggestionDialog.setVisible(true);
+
+                if (suggestionDialog.isSubmitted()) {
+                    Solution suggestion = board.createSolutionFromStrings(
+                        suggestionDialog.getSelectedPerson(),
+                        suggestionDialog.getSelectedWeapon(),
+                        suggestionDialog.getSelectedRoom()   // returns the fixed room name
+                    );
+                    if (suggestion != null) {
+                        board.handleSuggestion(board.getCurrentPlayer(), suggestion);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Error creating suggestion.");
+                    }
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "That is not a valid location. Please pick a highlighted cell.");
+        }
+    }  
 }

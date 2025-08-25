@@ -157,6 +157,11 @@ public class GameControlSideBar extends JPanel {
         seenWeaponsBy.put("Thermal Detonator", "Obi-Wan Kenobi");
         seenWeaponsBy.put("Bowcaster", "Princess Leia");
 
+        
+        System.out.println("Seen people: " + seenPeopleBy);
+        System.out.println("Seen rooms: " + seenRoomsBy);
+        System.out.println("Seen weapons: " + seenWeaponsBy);
+
         sideBar.updatePanels(inHandPeople, seenPeopleBy, inHandRooms, seenRoomsBy, inHandWeapons, seenWeaponsBy);
 
         frame.setContentPane(sideBar);

@@ -1,3 +1,69 @@
+commit d73c99740d7f9224fba590313d3922485b46b83d
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Tue Aug 5 14:00:11 2025 -0600
+
+    Added class headers
+
+commit f230985f4bfc2fd6f2b7ae31934d6de9a4918441
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Tue Aug 5 13:55:41 2025 -0600
+
+    Needed to adjust tests after changing player starting locations
+
+commit 6aa3db02cf5580049fb06a85a4ef9ac6873150a1
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Tue Aug 5 13:55:20 2025 -0600
+
+    Finishing touches
+
+commit d5b045828703423164bc167123df28de4a21e099
+Author: gearthinker3 <loganmatthews@mines.edu>
+Date:   Tue Aug 5 13:54:49 2025 -0600
+
+    Needed to change player starting coordinates
+
+commit 78a290585b6fb9537a3ac5a9c0620340b9eedbe7
+Author: gearthinker3 <loganmatthews@mines.edu>
+Date:   Tue Aug 5 13:37:33 2025 -0600
+
+    Created doorways
+
+commit 5210b4a4de2e7690cdeb81c3ccab160fdf5f6b65
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Tue Aug 5 13:24:39 2025 -0600
+
+    Added isRoom method
+
+commit 07783bb07ce0ff0075404fa0a0e81d01dbdb06f0
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Tue Aug 5 02:31:43 2025 -0600
+
+    Created final Board GUI
+
+commit ab88b6c05691435fa2e4bb8dfdb49945c388918d
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Mon Aug 4 20:38:29 2025 -0600
+
+    Created header
+
+commit d906c872d26acb4dd6fabd9e839d4d786a97df59
+Author: shauryasaxenas <shaurya.saxena03@gmail.com>
+Date:   Mon Aug 4 19:59:00 2025 -0600
+
+    Finished adding color code
+
+commit 5cf36186fda5b1eae26ffd20b6af885853a13c62
+Author: gearthinker3 <loganmatthews@mines.edu>
+Date:   Mon Aug 4 19:19:36 2025 -0600
+
+    People category in sidebar created:
+
+commit 3ef0d7e5962a1af9c6dfe6e690c5a6cebb7c576f
+Author: gearthinker3 <loganmatthews@mines.edu>
+Date:   Mon Aug 4 19:01:57 2025 -0600
+
+    Starting to create side bar GUI
+
 commit 44b28df35a5b8bbe239706af8f46d6f2b1040d43
 Author: gearthinker3 <loganmatthews@mines.edu>
 Date:   Mon Aug 4 18:24:54 2025 -0600

@@ -17,6 +17,10 @@ import java.util.List;
 
 public class ComputerPlayer extends Player {
 	private List<Card> seenCards = new ArrayList<>();
+	private boolean readyToAccuse = false;
+	private Solution storedAccusation = null;
+	
+
 
     public ComputerPlayer(String name, String color, int row, int column) {
         super(name, color, row, column);
@@ -111,6 +115,20 @@ public class ComputerPlayer extends Player {
         List<BoardCell> targetList = new ArrayList<>(targets);
         return targetList.get(rand.nextInt(targetList.size()));
     }
+    
+    public void setReadyToAccuse(boolean ready) {
+        this.readyToAccuse = ready;
+    }
 
+    public boolean isReadyToAccuse() {
+        return readyToAccuse;
+    }
 
+    public void setStoredAccusation(Solution accusation) {
+        this.storedAccusation = accusation;
+    }
+
+    public Solution getStoredAccusation() {
+        return storedAccusation;
+    }
 }
