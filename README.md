@@ -30,7 +30,7 @@ This project brings the familiar mystery-solving mechanics of Clue into a galaxy
 3. Navigate to the folder containing the JAR file.  
 4. Run the game with:  
    ```bash
-   java -jar StarWarsClue.jar
+   java -jar ClueGame.jar
 
 ## License
 This project is a fan-made, educational project and is not affiliated with or endorsed by Lucasfilm Ltd. or Hasbro.
