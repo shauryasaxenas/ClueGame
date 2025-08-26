@@ -25,7 +25,7 @@ This project brings the familiar mystery-solving mechanics of Clue into a galaxy
 - Java 8 or higher installed on your system.  
 
 ### Running the Executable JAR  
-1. Download the provided **`StarWarsClue.jar`** file.  
+1. Download the provided **`ClueGame.jar`** file.  
 2. Open a terminal (or command prompt).  
 3. Navigate to the folder containing the JAR file.  
 4. Run the game with:  
